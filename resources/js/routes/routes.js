@@ -2,11 +2,13 @@ import { authStore } from "../store/auth";
 
 const AuthenticatedLayout = () => import('../layouts/Authenticated.vue')
 const AuthenticatedUserLayout = () => import('../layouts/AuthenticatedUser.vue')
-const GuestLayout = ()  => import('../layouts/Guest.vue');
-const PostsIndex  = ()  => import('../views/admin/posts/Index.vue');
-const PostsCreate  = ()  => import('../views/admin/posts/Create.vue');
-const PostsEdit  = ()  => import('../views/admin/posts/Edit.vue');
-
+const GuestLayout = () => import('../layouts/Guest.vue');
+const PostsIndex = () => import('../views/admin/posts/Index.vue');
+const PostsCreate = () => import('../views/admin/posts/Create.vue');
+const PostsEdit = () => import('../views/admin/posts/Edit.vue');
+const Index = () => import('../views/facturas/index.vue');
+const PresupuestoForm = () => import('../views/facturas/PresupuestoForm.vue');
+const TransaccionForm = () => import('../views/facturas/TransaccionForm.vue');
 async function requireLogin(to, from, next) {
     const auth = authStore();
     let isLogin = !!auth.authenticated;
@@ -45,9 +47,9 @@ async function requireAdmin(to, from, next) {
     let user = auth.user;
 
     if (isLogin) {
-        if( hasAdmin(user.roles)){
+        if (hasAdmin(user.roles)) {
             next()
-        }else{
+        } else {
             next('/app')
         }
     } else {
@@ -120,6 +122,31 @@ export default [
         meta: { breadCrumb: 'Dashboard' }
     },
 
+    //FACTURAS
+
+    {
+        path: '/facturas',
+        component: AuthenticatedLayout,
+        beforeEnter: requireLogin,
+
+        children: [
+            {
+                path: '/facturas',
+                name: 'index.facturas',
+                component: () => import('../views/facturas/index.vue'),
+            },
+            {
+                path: '/facturas/presupuesto',
+                name: 'presupuesto.facturas',
+                component: () => import('../views/facturas/PresupuestoForm.vue'),
+            },
+            {
+                path: '/facturas/transaccion',
+                name: 'transaccion.facturas',
+                component: () => import('../views/facturas/TransaccionForm.vue'),
+            },
+        ],
+    },
 
     {
         path: '/admin',
@@ -163,7 +190,7 @@ export default [
             {
                 name: 'categories',
                 path: 'categories',
-                meta: { breadCrumb: 'Categories'},
+                meta: { breadCrumb: 'Categories' },
                 children: [
                     {
                         name: 'categories.index',
@@ -176,7 +203,7 @@ export default [
                         path: 'create',
                         component: () => import('../views/admin/categories/Create.vue'),
                         meta: {
-                            breadCrumb: 'Add new category' ,
+                            breadCrumb: 'Add new category',
                             linked: false,
                         }
                     },
@@ -194,7 +221,7 @@ export default [
             {
                 name: 'permissions',
                 path: 'permissions',
-                meta: { breadCrumb: 'Permisos'},
+                meta: { breadCrumb: 'Permisos' },
                 children: [
                     {
                         name: 'permissions.index',
@@ -225,7 +252,7 @@ export default [
             {
                 name: 'users',
                 path: 'users',
-                meta: { breadCrumb: 'Usuarios'},
+                meta: { breadCrumb: 'Usuarios' },
                 children: [
                     {
                         name: 'users.index',

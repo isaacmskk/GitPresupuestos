@@ -49,12 +49,6 @@ class User extends Authenticatable implements HasMedia
         $this->notify(new UserResetPasswordNotification($token));
     }
 
-    public function assignaments()
-    {
-        return $this->hasMany(UserAssignment::class,'user_id');
-    }
-
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images/users')
@@ -70,5 +64,17 @@ class User extends Authenticatable implements HasMedia
                 ->width(env('IMAGE_WIDTH', 300))
                 ->height(env('IMAGE_HEIGHT', 300));
         }
+    }
+      public function categorias()
+    {
+        return $this->hasMany(categorias::class);
+    }
+
+    /**
+     * Relación con las transacciones.
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(transacciones::class);
     }
 }

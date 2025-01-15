@@ -1,7 +1,7 @@
 <?php
 
 namespace Database\Seeders;
-
+use App\Models\categorias;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -54,5 +54,19 @@ class CreateAdminUserSeeder extends Seeder
         ]);
         $user->assignRole([$role2->id]);
 
+        $categoria1 = categorias::create(
+            [
+                'id' => '1',
+                'nombre' => 'Nomina',
+                'user_id' => '1'
+            ]
+        );
+        $categoria1 = categorias::create(
+            [
+                'id' => '2',
+                'nombre' => 'Colegio',
+                'user_id' => '1'
+            ]
+        );
     }
 }
