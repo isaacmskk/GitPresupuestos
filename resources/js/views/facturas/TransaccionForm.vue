@@ -26,9 +26,12 @@
             </option>
             <option value="otros">Otros</option>
           </select>
-          <!-- Si se selecciona 'otros', se muestra el campo para escribir la nueva categoría -->
-          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text"
-            placeholder="Escribe la categoría" />
+          <input
+            v-if="newTransaccion.categoria_id === 'otros'"
+            v-model="newTransaccion.categoria"
+            type="text"
+            placeholder="Escribe la categoría"
+          />
         </div>
 
         <!-- Tipo (Ingreso/Gasto) -->
@@ -44,6 +47,41 @@
         <button type="button" @click="$emit('close')">Cerrar</button>
       </form>
 
+      <!-- Filtros -->
+      <div class="filters">
+        <h3>Filtros</h3>
+        <!-- Filtro por categoría -->
+        <div class="form-group">
+          <label for="filterCategoria">Filtrar por Categoría:</label>
+          <select v-model="filtroCategoria" @change="aplicarFiltros">
+            <option value="">Todas las categorías</option>
+            <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+              {{ categoria.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Filtro por tipo -->
+        <div class="form-group">
+          <label for="filterTipo">Filtrar por Tipo:</label>
+          <select v-model="filtroTipo" @change="aplicarFiltros">
+            <option value="">Todos</option>
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto">Gasto</option>
+          </select>
+        </div>
+
+        <!-- Filtro por monto -->
+        <div class="form-group">
+          <label for="filterMonto">Ordenar por Monto:</label>
+          <select v-model="filtroMonto" @change="aplicarFiltros">
+            <option value="">Sin ordenar</option>
+            <option value="mayor">Mayor a menor</option>
+            <option value="menor">Menor a mayor</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Lista de transacciones -->
       <h3>Transacciones</h3>
       <table>
@@ -56,7 +94,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="transaccion in transacciones" :key="transaccion.id">
+          <tr v-for="transaccion in transaccionesFiltradas" :key="transaccion.id">
             <td>{{ transaccion.descripcion }}</td>
             <td>{{ transaccion.monto }}</td>
             <td>{{ transaccion.tipo }}</td>
@@ -77,18 +115,42 @@ export default {
         monto: '',
         categoria_id: '',
         tipo: '',
-        categoria: '' // Para la categoría "Otros"
+        categoria: ''
       },
-      categorias: [], // Categorías obtenidas desde la API
-      transacciones: [] // Transacciones del usuario autenticado
+      categorias: [],
+      transacciones: [],
+      filtroCategoria: '',
+      filtroTipo: '', // Nuevo filtro para tipo
+      filtroMonto: ''
     };
+  },
+  computed: {
+    transaccionesFiltradas() {
+      let transaccionesFiltradas = this.transacciones;
+
+      // Filtro por categoría
+      if (this.filtroCategoria) {
+        transaccionesFiltradas = transaccionesFiltradas.filter(
+          (t) => t.categoria?.id == this.filtroCategoria
+        );
+      }
+
+      // Filtro por tipo
+      if (this.filtroTipo) {
+        transaccionesFiltradas = transaccionesFiltradas.filter(
+          (t) => t.tipo === this.filtroTipo
+        );
+      }
+
+      return transaccionesFiltradas;
+    }
   },
   mounted() {
     this.fetchCategorias();
     this.fetchTransacciones();
+    this.cargarFiltros(); // Cargar los filtros al montar el componente
   },
   methods: {
-    // Obtener las categorías desde la API
     async fetchCategorias() {
       try {
         const response = await axios.get('/api/categorias');
@@ -97,50 +159,63 @@ export default {
         console.error('Error al cargar las categorías:', error);
       }
     },
-
-    // Obtener las transacciones desde la API
     async fetchTransacciones() {
       try {
-        const response = await axios.get('/api/transacciones');
+        const response = await axios.get('/api/transacciones', {
+          params: {
+            monto: this.filtroMonto,
+            tipo: this.filtroTipo
+          }
+        });
         this.transacciones = response.data;
       } catch (error) {
         console.error('Error al cargar las transacciones:', error);
       }
     },
-
-    // Enviar la transacción a la API
     async submitTransaccion() {
       try {
-        // Si se selecciona "otros", crea una nueva categoría
         if (this.newTransaccion.categoria_id === 'otros' && this.newTransaccion.categoria) {
           const nuevaCategoria = { nombre: this.newTransaccion.categoria };
           const response = await axios.post('/api/categorias', nuevaCategoria);
-          this.newTransaccion.categoria_id = response.data.id; // Asignar el ID de la nueva categoría
+          this.newTransaccion.categoria_id = response.data.id;
         }
 
-        // Crear una copia de la transacción sin el campo 'categoria'
         const transaccionAEnviar = { ...this.newTransaccion };
         delete transaccionAEnviar.categoria;
 
-        // Enviar la transacción al backend
         const response = await axios.post('/api/transacciones', transaccionAEnviar);
 
         console.log('Transacción agregada:', response.data);
 
-        // Recargar la lista de transacciones después de agregar una nueva
         this.fetchTransacciones();
-
-        // Cerrar el formulario después de guardar
         this.$emit('close');
       } catch (error) {
         console.error('Error al agregar la transacción:', error);
       }
+    },
+    aplicarFiltros() {
+      // Guardar los filtros en localStorage
+      localStorage.setItem('filtroCategoria', this.filtroCategoria);
+      localStorage.setItem('filtroTipo', this.filtroTipo);
+      localStorage.setItem('filtroMonto', this.filtroMonto);
+      
+      // Recargar las transacciones con los filtros aplicados
+      this.fetchTransacciones();
+    },
+    cargarFiltros() {
+      // Cargar los filtros desde localStorage
+      this.filtroCategoria = localStorage.getItem('filtroCategoria') || '';
+      this.filtroTipo = localStorage.getItem('filtroTipo') || '';
+      this.filtroMonto = localStorage.getItem('filtroMonto') || '';
+      
+      this.fetchTransacciones(); // Recargar las transacciones con los filtros guardados
     }
   }
 };
 </script>
+
 <style scoped>
-/* Estilos para el formulario y la tabla */
+/* Estilos existentes */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -163,5 +238,10 @@ form div {
 
 button {
   margin-right: 10px;
+}
+
+.filters {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>

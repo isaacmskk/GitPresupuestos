@@ -12,6 +12,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\PresupuestoController;
 use App\Http\Controllers\Api\TransaccionController;
 use App\Http\Controllers\Api\CategoriaController;
+use App\Http\Controllers\Api\BankAccountController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +22,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('forget-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('forget.password.post');
 Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.reset');
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('users', UserController::class);
 
-    Route::post('users/updateimg', [UserController::class,'updateimg']); //Listar
+    Route::post('users/updateimg', [UserController::class, 'updateimg']); //Listar
 
     Route::apiResource('posts', PostControllerAdvance::class);
     Route::apiResource('categories', CategoryController::class);
@@ -39,7 +41,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('/user', [ProfileController::class, 'user']);
     Route::put('/user', [ProfileController::class, 'update']);
 
-    Route::get('abilities', function(Request $request) {
+    Route::get('abilities', function (Request $request) {
         return $request->user()->roles()->with('permissions')
             ->get()
             ->pluck('permissions')
@@ -49,24 +51,27 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             ->values()
             ->toArray();
     });
-     //categorias
-     Route::get('/categorias', action: [CategoriaController::class, 'index']);
-     Route::post('/categorias', [CategoriaController::class, 'store']);
- 
-     //presupuestos
-     Route::apiResource('presupuestos', PresupuestoController::class);
-     Route::get('presupuestos', [PresupuestoController::class, 'index']);
-     Route::post('presupuestos', [PresupuestoController::class, 'store']);
-     Route::put('presupuestos/{id}', [PresupuestoController::class, 'update']);
-     Route::delete('presupuestos/{id}', [PresupuestoController::class, 'destroy']);
- 
-     //transacciones
-     Route::apiResource('transacciones', TransaccionController::class);
-     Route::get('transacciones', [TransaccionController::class, 'index']);
-     Route::post('transacciones', [TransaccionController::class, 'store']);
-     Route::put('transacciones/{id}', [TransaccionController::class, 'update']);
-     Route::delete('transacciones/{id}', [TransaccionController::class, 'destroy']);
- 
+    //categorias
+    Route::get('/categorias', action: [CategoriaController::class, 'index']);
+    Route::post('/categorias', [CategoriaController::class, 'store']);
+
+    //presupuestos
+    Route::apiResource('presupuestos', PresupuestoController::class);
+    Route::get('presupuestos', [PresupuestoController::class, 'index']);
+    Route::post('presupuestos', [PresupuestoController::class, 'store']);
+    Route::put('presupuestos/{id}', [PresupuestoController::class, 'update']);
+    Route::delete('presupuestos/{id}', [PresupuestoController::class, 'destroy']);
+
+    //transacciones
+    Route::apiResource('transacciones', TransaccionController::class);
+    Route::get('transacciones', [TransaccionController::class, 'index']);
+    Route::post('transacciones', [TransaccionController::class, 'store']);
+    Route::put('transacciones/{id}', [TransaccionController::class, 'update']);
+    Route::delete('transacciones/{id}', [TransaccionController::class, 'destroy']);
+
+    //banco
+    Route::get('/api/bank-accounts', [BankAccountController::class, 'getBankAccounts']);
+    Route::get('/api/bank-accounts/{accountId}/transactions', [BankAccountController::class, 'getTransactions']);
 });
 
 Route::get('category-list', [CategoryController::class, 'getList']);

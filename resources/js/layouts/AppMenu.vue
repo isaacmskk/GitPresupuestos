@@ -21,24 +21,20 @@ const model = ref([
         label: 'Home',
         items: [
         { label: 'Home', icon: 'pi pi-fw pi-home', to: '/facturas', permision: 'all' },
-        { label: 'Presupuestos', icon: 'pi pi-fw pi-check-square', to: '/facturas/presupuesto', permision: 'role-list' },
-        { label: 'Transacciones', icon: 'pi pi-fw pi-check-square', to: '/facturas/transaccion', permision:'role-list' },
 
         ]
     },
     {
-        label: 'Usuarios',
+        label: 'Añadir',
         items: [
-            { label: 'Users', icon: 'pi pi-fw pi-id-card', to: '/admin/users', permision: 'user-list' },
-            { label: 'Roles', icon: 'pi pi-fw pi-check-square', to: '/admin/roles', permision: 'role-list' },
-            { label: 'Permisos', icon: 'pi pi-fw pi-bookmark', to: '/admin/permissions', permision: 'permission-list' }
+        { label: 'Presupuestos', icon: 'pi pi-fw pi-check-square', to: '/facturas/presupuesto', permision: 'role-list' },
+        { label: 'Transacciones', icon: 'pi pi-fw pi-check-square', to: '/facturas/transaccion', permision:'role-list' },
         ]
     },
     {
-        label: 'Ejercicios',
+        label: 'Graficos',
         items: [
-            { label: 'Ejercicios', icon: 'pi pi-fw pi-id-card', to: '/admin/exercises', permision: 'exercise-list' },
-            { label: 'Categorias', icon: 'pi pi-fw pi-id-card', to: '/admin/categories', permision: 'category-list' }
+        { label: 'Graficas Mes', icon: 'pi pi-fw pi-check-square', to: '/facturas/graficas', permision: 'role-list' },
         ]
     },
     {

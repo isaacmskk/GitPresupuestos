@@ -9,22 +9,33 @@ use App\Models\categorias;
 
 class TransaccionController extends Controller
 {
-    public function index()
-    {
-        // Obtener el usuario autenticado
-        $user = auth()->user();
-    
-        // Obtener las transacciones del usuario con sus relaciones
-        $transacciones = transacciones::with('categoria')
-            ->where('user_id', $user->id)
+    public function index(Request $request)
+{
+    $user = auth()->user();
+    $query = transacciones::with('categoria')->where('user_id', $user->id);
+
+    // Si se solicita un agrupamiento por mes
+    if ($request->has('group_by') && $request->group_by == 'mes') {
+        $transacciones = $query->selectRaw('SUM(monto) as total, MONTH(fecha) as mes')
+            ->groupBy('mes')
             ->get();
-    
-        // Retornar la respuesta en formato JSON
-        return response()->json($transacciones);
+    } else {
+        // Si se solicita ordenación por monto
+        if ($request->has('monto')) {
+            if ($request->monto == 'mayor') {
+                $transacciones = $query->orderBy('monto', 'desc')->get();
+            } elseif ($request->monto == 'menor') {
+                $transacciones = $query->orderBy('monto', 'asc')->get();
+            } else {
+                $transacciones = $query->get();
+            }
+        } else {
+            $transacciones = $query->get();
+        }
     }
-    
 
-
+    return response()->json($transacciones);
+}
     public function store(Request $request)
     {
         $request->validate([
