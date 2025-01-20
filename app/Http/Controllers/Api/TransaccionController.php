@@ -13,13 +13,15 @@ class TransaccionController extends Controller
 {
     $user = auth()->user();
     $query = transacciones::with('categoria')->where('user_id', $user->id);
-
+    if ($request->has('mes')) {
+        $query->whereMonth('fecha', $request->mes);
+    }
     // Si se solicita un agrupamiento por mes
     if ($request->has('group_by') && $request->group_by == 'mes') {
         $transacciones = $query->selectRaw('SUM(monto) as total, MONTH(fecha) as mes')
             ->groupBy('mes')
             ->get();
-    } else {
+    }  else {
         // Si se solicita ordenación por monto
         if ($request->has('monto')) {
             if ($request->monto == 'mayor') {

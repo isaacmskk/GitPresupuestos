@@ -36,7 +36,6 @@
         </div>
 
         <button type="submit" class="botonGeneral" style="margin-top: 20px;">Añadir</button>
-        <button type="button" class="botonGeneral" style="margin-top: 20px;" @click="$emit('close')">Cerrar</button>
       </form>
     </div>
   </div>

@@ -9,28 +9,33 @@ use App\Http\Controllers\Controller;
 
 class PresupuestoController extends Controller
 {
-    public function index(Request $request)
-    {
-        $usuario = auth()->user(); // Obtener el usuario autenticado
+  public function index(Request $request)
+{
+    $usuario = auth()->user();
+    $query = presupuestos::where('user_id', $usuario->id);
 
-        // Si se solicita un agrupamiento por mes
-        if ($request->has('group_by') && $request->group_by == 'mes') {
-            $presupuestos = presupuestos::where('user_id', $usuario->id)
-                ->selectRaw('SUM(monto) as monto, MONTH(mes) as mes')
-                ->groupBy('mes')
-                ->get();
-        } else {
-            // Si no se solicita agrupamiento por mes, simplemente se obtienen todos los presupuestos
-            $presupuestos = presupuestos::where('user_id', $usuario->id)->get();
-        }
-
-        $total = $presupuestos->sum('monto'); // Sumar el total de los presupuestos
-
-        return response()->json([
-            'presupuestos' => $presupuestos,
-            'total' => $total
-        ]);
+    // Filtrar por mes si se proporciona el parámetro 'mes'
+    if ($request->has('mes') && $request->mes !== 'todos') {
+        $query->whereMonth('mes', $request->mes);
     }
+
+    // Agrupamiento por mes si 'group_by' es 'mes'
+    if ($request->has('group_by') && $request->group_by == 'mes') {
+        $presupuestos = $query->selectRaw('SUM(monto) as monto, MONTH(mes) as mes')
+            ->groupBy('mes')
+            ->get();
+    } else {
+        $presupuestos = $query->get();
+    }
+
+    $total = $presupuestos->sum('monto');
+
+    return response()->json([
+        'presupuestos' => $presupuestos,
+        'total' => $total
+    ]);
+}
+
 
 
 

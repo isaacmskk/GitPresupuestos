@@ -44,7 +44,6 @@
         </div>
 
         <button type="submit">Guardar</button>
-        <button type="button" @click="$emit('close')">Cerrar</button>
       </form>
 
       <!-- Filtros -->

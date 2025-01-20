@@ -38,10 +38,9 @@ const model = ref([
         ]
     },
     {
-        label: 'Posts',
+        label: 'Banco',
         items: [
-            { label: 'Posts', icon: 'pi pi-fw pi-id-card', to: '/admin/posts', permision: 'post-list' }
-        ]
+        { label: 'Conexión Banco', icon: 'pi pi-fw pi-check-square', to: '/facturas/banco', permision: 'role-list' },       ]
     }
 ]);
 </script>
