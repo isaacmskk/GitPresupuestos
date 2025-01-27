@@ -46,24 +46,25 @@ export default {
         };
     },
     methods: {
-        async fetchBankAccounts() {
-            try {
-                const response = await axios.get('/api/bank-accounts');
-                console.log('Datos de cuentas bancarias:', response.data); // Confirmar datos aquí
-                this.bankAccounts = response.data.bank_accounts || [];
-            } catch (error) {
-                console.error('Error al obtener cuentas bancarias:', error);
-            }
+    async fetchBankAccounts() {
+        try {
+            const response = await axios.get('/api/bank-accounts');
+            this.bankAccounts = response.data.bank_accounts || [];
+        } catch (error) {
+            alert('Error al obtener cuentas bancarias. Intenta de nuevo.');
+            console.error('Error:', error);
         }
-        ,
-        async fetchTransactions(accountId) {
-            try {
-                const response = await axios.get(`/api/bank-accounts/${accountId}/transactions`);
-                this.bankTransactions = response.data.transactions || [];
-            } catch (error) {
-                console.error('Error al obtener transacciones:', error);
-            }
+    },
+    async fetchTransactions(accountId) {
+        try {
+            const response = await axios.get(`/api/bank-accounts/${accountId}/transactions`);
+            this.bankTransactions = response.data.transactions || [];
+        } catch (error) {
+            alert('Error al obtener transacciones. Intenta de nuevo.');
+            console.error('Error:', error);
         }
     }
+}
+
 };
 </script>

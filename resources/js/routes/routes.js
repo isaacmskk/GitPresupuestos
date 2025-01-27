@@ -155,6 +155,11 @@ export default [
                 name: 'graficas.facturas',
                 component: () => import('../views/facturas/Graficas.vue'),
             },
+            {
+                path: '/facturas/importar',
+                name: 'importar.facturas',
+                component: () => import('../views/facturas/Importar.vue'),
+            },
         ],
     },
 
@@ -172,6 +177,12 @@ export default [
                 path: '',
                 component: () => import('../views/admin/index.vue'),
                 meta: { breadCrumb: 'Admin' }
+            },
+            //mio
+            {
+                path: '/admin/auto',
+                name: 'auto.admin',
+                component: () => import('../views/admin/auto/TransaccionesAuto.vue'),
             },
             {
                 name: 'profile.index',

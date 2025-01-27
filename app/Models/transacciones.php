@@ -17,15 +17,17 @@ class transacciones extends Model
         'categoria_id',
         'user_id',
     ];
-    
+
 
     /**
      * Relación con el usuario.
      */
+    // App\Models\transacciones.php
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
 
     /**
      * Relación muchos a muchos con las categorías.
@@ -34,5 +36,4 @@ class transacciones extends Model
     {
         return $this->belongsTo(categorias::class);
     }
-    
 }

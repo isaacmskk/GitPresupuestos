@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\PresupuestoController;
 use App\Http\Controllers\Api\TransaccionController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\BankAccountController;
-
+use App\Http\Controllers\Api\RandomUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -69,9 +69,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('transacciones/{id}', [TransaccionController::class, 'update']);
     Route::delete('transacciones/{id}', [TransaccionController::class, 'destroy']);
 
+    Route::post('transacciones/import-csv', [TransaccionController::class, 'importCSV']);
+
+
     //banco
     Route::get('/api/bank-accounts', [BankAccountController::class, 'getBankAccounts']);
     Route::get('/api/bank-accounts/{accountId}/transactions', [BankAccountController::class, 'getTransactions']);
+
+    Route::post('/random-user', [RandomUserController::class, 'generateUserWithTransactions']);
 });
 
 Route::get('category-list', [CategoryController::class, 'getList']);

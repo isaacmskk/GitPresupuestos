@@ -20,27 +20,28 @@ const model = ref([
     {
         label: 'Home',
         items: [
-        { label: 'Home', icon: 'pi pi-fw pi-home', to: '/facturas', permision: 'all' },
+            { label: 'Home', icon: 'pi pi-fw pi-home', to: '/facturas', permision: 'all' },
 
         ]
     },
     {
         label: 'Añadir',
         items: [
-        { label: 'Presupuestos', icon: 'pi pi-fw pi-check-square', to: '/facturas/presupuesto', permision: 'role-list' },
-        { label: 'Transacciones', icon: 'pi pi-fw pi-check-square', to: '/facturas/transaccion', permision:'role-list' },
+            { label: 'Presupuestos', icon: 'pi pi-fw pi-check-square', to: '/facturas/presupuesto', permision: 'all' },
+            { label: 'Transacciones', icon: 'pi pi-fw pi-check-square', to: '/facturas/transaccion', permision: 'all' },
+            { label: 'Transacciones Automaticas', icon: 'pi pi-fw pi-check-square', to: '/admin/auto', permision: 'role-list' },
         ]
     },
     {
         label: 'Graficos',
         items: [
-        { label: 'Graficas Mes', icon: 'pi pi-fw pi-check-square', to: '/facturas/graficas', permision: 'role-list' },
+            { label: 'Graficas Mes', icon: 'pi pi-fw pi-check-square', to: '/facturas/graficas', permision: 'all' },
         ]
     },
     {
-        label: 'Banco',
+        label: 'Importar',
         items: [
-        { label: 'Conexión Banco', icon: 'pi pi-fw pi-check-square', to: '/facturas/banco', permision: 'role-list' },       ]
+            { label: 'Importar Transacciones', icon: 'pi pi-fw pi-check-square', to: '/facturas/importar', permision: 'all' },]
     }
 ]);
 </script>

@@ -26,12 +26,8 @@
             </option>
             <option value="otros">Otros</option>
           </select>
-          <input
-            v-if="newTransaccion.categoria_id === 'otros'"
-            v-model="newTransaccion.categoria"
-            type="text"
-            placeholder="Escribe la categoría"
-          />
+          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text"
+            placeholder="Escribe la categoría" />
         </div>
 
         <!-- Tipo (Ingreso/Gasto) -->
@@ -45,6 +41,7 @@
 
         <button type="submit">Guardar</button>
       </form>
+      
 
       <!-- Filtros -->
       <div class="filters">
@@ -150,6 +147,17 @@ export default {
     this.cargarFiltros(); // Cargar los filtros al montar el componente
   },
   methods: {
+    async generarUsuarioYTransaccion() {
+      try {
+        const response = await axios.post('/api/random-user');
+        console.log('Usuario generado:', response.data);
+
+        // Recargar transacciones para reflejar los cambios
+        this.fetchTransacciones();
+      } catch (error) {
+        console.error('Error al generar usuario y transacción:', error);
+      }
+    },
     async fetchCategorias() {
       try {
         const response = await axios.get('/api/categorias');
@@ -197,7 +205,7 @@ export default {
       localStorage.setItem('filtroCategoria', this.filtroCategoria);
       localStorage.setItem('filtroTipo', this.filtroTipo);
       localStorage.setItem('filtroMonto', this.filtroMonto);
-      
+
       // Recargar las transacciones con los filtros aplicados
       this.fetchTransacciones();
     },
@@ -206,7 +214,7 @@ export default {
       this.filtroCategoria = localStorage.getItem('filtroCategoria') || '';
       this.filtroTipo = localStorage.getItem('filtroTipo') || '';
       this.filtroMonto = localStorage.getItem('filtroMonto') || '';
-      
+
       this.fetchTransacciones(); // Recargar las transacciones con los filtros guardados
     }
   }
@@ -221,7 +229,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   padding: 8px;
   text-align: left;
   border: 1px solid #ddd;
