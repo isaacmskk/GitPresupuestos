@@ -56,45 +56,52 @@ class TransaccionController extends Controller
         // Abrimos el archivo para lectura
         if (($handle = fopen($file, 'r')) !== false) {
             // Leer la primera línea (encabezado) y descartarla
-            $header = fgetcsv($handle);
+            $header = fgetcsv($handle, 0, ',');
     
-            while (($data = fgetcsv($handle)) !== false) {
-                // Limpiar y extraer los datos del CSV
+            while (($data = fgetcsv($handle, 0, ',')) !== false) {
+                // Extraer los datos del CSV
                 $descripcion = trim($data[0] ?? 'Sin descripción'); // Índice 0: Concepto (Descripción)
                 $fechaCSV = trim($data[2] ?? now()); // Índice 2: Fecha
-                $importeRaw = trim($data[3] ?? '0'); // Índice 3: Importe
+                
+                // Reconstrucción del importe (ya que el CSV separa decimales con coma)
+                $importeRaw = trim($data[3] ?? '0') . '.' . trim($data[4] ?? '00'); 
+                $importeRaw = str_replace('EUR', '', $importeRaw); // Eliminar "EUR"
     
-                // Convertir el importe eliminando "EUR" y reemplazando la coma por un punto
-                $importe = floatval(str_replace(',', '.', str_replace('EUR', '', $importeRaw)));
+                // Convertir a número flotante sin perder precisión
+                $importe = (float) str_replace(',', '.', $importeRaw);
     
-                // Validar el formato de la fecha (d/m/Y) y convertirla al formato Y-m-d
+                // Determinar si es un gasto o un ingreso ANTES de convertir a positivo
+                $tipo = ($importe < 0) ? 'gasto' : 'ingreso';
+    
+                // Convertir a positivo el importe para que se almacene correctamente
+                $importe = number_format(abs($importe), 2, '.', '');
+    
+                // Validar y convertir la fecha (si viene en d/m/Y)
                 if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $fechaCSV)) {
                     $fecha = \Carbon\Carbon::createFromFormat('d/m/Y', $fechaCSV)->format('Y-m-d');
                 } else {
-                    // Si la fecha no está en el formato esperado, asignar la fecha actual
                     $fecha = now();
                 }
     
-                // Crear una nueva transacción usando los datos del CSV
+                // Crear una nueva transacción
                 $transaccion = new transacciones([
-                    'descripcion' => $descripcion, // Descripción
-                    'monto' => $importe, // Importe
-                    'tipo' => ($importe > 0) ? 'ingreso' : 'gasto', // Determinar si es un ingreso o gasto
-                    'fecha' => $fecha, // Fecha
-                    'categoria_id' => 1, // Asignar una categoría genérica o lógica
-                    'user_id' => Auth::id(), // ID del usuario autenticado
+                    'descripcion' => $descripcion,
+                    'monto' => $importe,
+                    'tipo' => $tipo, // Ahora diferenciamos bien ingreso/gasto
+                    'fecha' => $fecha,
+                    'categoria_id' => 1, 
+                    'user_id' => Auth::id(),
                 ]);
     
-                // Guardar la transacción en la base de datos
                 $transaccion->save();
             }
     
-            fclose($handle); // Cerrar el archivo después de procesarlo
+            fclose($handle);
         }
     
         return response()->json(['message' => 'Transacciones importadas correctamente.']);
     }
-    
+        
     public function store(Request $request)
     {
         $request->validate([

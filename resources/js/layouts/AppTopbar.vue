@@ -1,6 +1,6 @@
 <template>
     <div class="layout-topbar">
-        <router-link to="/" class="layout-topbar-logo">
+        <router-link to="/facturas" class="layout-topbar-logo">
             <img src="/images/logo.svg" alt="logo" />
             <span></span>
         </router-link>

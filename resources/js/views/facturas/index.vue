@@ -9,177 +9,138 @@
     <!-- Filtros -->
     <div class="filters">
       <h3>Filtros</h3>
-
-      <!-- Filtro por tipo de datos (Presupuestos/Transacciones) -->
       <div class="form-group">
         <label for="filterTipoDatos">Mostrar:</label>
-        <select v-model="filtroTipoDatos">
-          <option value="transacciones">Transacciones</option>
-          <option value="presupuestos">Presupuestos</option>
-        </select>
+        <Dropdown v-model="filtroTipoDatos" :options="[
+          { label: 'Transacciones', value: 'transacciones' },
+          { label: 'Presupuestos', value: 'presupuestos' }
+        ]" optionLabel="label" optionValue="value" placeholder="Seleccione" />
       </div>
-
-      <!-- Filtro específico para transacciones -->
       <div v-if="filtroTipoDatos === 'transacciones'">
         <div class="form-group">
           <label for="filterTipo">Filtrar por Tipo:</label>
-          <select v-model="filtroTipo" @change="aplicarFiltros">
-            <option value="">Todos</option>
-            <option value="ingreso">Ingreso</option>
-            <option value="gasto">Gasto</option>
-          </select>
+          <Dropdown v-model="filtroTipo" :options="[
+            { label: 'Todos', value: '' },
+            { label: 'Ingreso', value: 'ingreso' },
+            { label: 'Gasto', value: 'gasto' }
+          ]" optionLabel="label" optionValue="value" placeholder="Seleccione" />
         </div>
-
         <div class="form-group">
           <label for="filterMonto">Ordenar por Monto:</label>
-          <select v-model="filtroMonto" @change="aplicarFiltros">
-            <option value="">Sin ordenar</option>
-            <option value="mayor">Mayor a menor</option>
-            <option value="menor">Menor a mayor</option>
-          </select>
+          <Dropdown v-model="filtroMonto" :options="[
+            { label: 'Sin ordenar', value: '' },
+            { label: 'Mayor a menor', value: 'mayor' },
+            { label: 'Menor a mayor', value: 'menor' }
+          ]" optionLabel="label" optionValue="value" placeholder="Seleccione" />
         </div>
       </div>
     </div>
 
     <!-- Tabla -->
     <h3>{{ filtroTipoDatos === 'transacciones' ? 'Transacciones' : 'Presupuestos' }}</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Descripción</th>
-          <th>Monto</th>
-          <th v-if="filtroTipoDatos === 'transacciones'">Tipo</th>
-          <th v-if="filtroTipoDatos === 'presupuestos'">Fecha</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in datosFiltrados" :key="item.id">
-          <td>{{ item.descripcion || 'Sin descripción' }}</td>
-          <td>{{ item.monto }}</td>
-          <td v-if="filtroTipoDatos === 'transacciones'">{{ item.tipo }}</td>
-          <td v-if="filtroTipoDatos === 'presupuestos'">{{ item.mes }}</td>
+    <DataTable :value="datosFiltrados" responsiveLayout="scroll">
+      <Column field="descripcion" header="Descripción">
+        <template #body="slotProps">
+          {{ slotProps.data.descripcion || 'Sin descripción' }}
+        </template>
+      </Column>
+      <Column field="monto" header="Monto">
+        <template #body="slotProps">
+          {{ slotProps.data.monto }}
+        </template>
+      </Column>
+      <Column v-if="filtroTipoDatos === 'transacciones'" field="tipo" header="Tipo">
+        <template #body="slotProps">
+          {{ slotProps.data.tipo }}
+        </template>
+      </Column>
+      <Column v-if="filtroTipoDatos === 'presupuestos'" field="mes" header="Fecha">
+        <template #body="slotProps">
+          {{ slotProps.data.mes }}
+        </template>
+      </Column>
+    </DataTable>
 
-        </tr>
-        <tr>
-          <td><strong>Total</strong></td>
-          <td><strong>{{ filtroTipoDatos === 'transacciones' ? totalTransacciones.ingresos + totalTransacciones.gastos : totalMontoPresupuesto }}</strong></td>
-          <td v-if="filtroTipoDatos === 'transacciones'">
-            <strong>Ingresos: {{ totalTransacciones.ingresos }} | Gastos: {{ totalTransacciones.gastos }}</strong>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="summary">
+      <p><strong>Total:</strong> {{ filtroTipoDatos === 'transacciones' ? totalTransacciones.ingresos + totalTransacciones.gastos : totalMontoPresupuesto }}</p>
+      <p v-if="filtroTipoDatos === 'transacciones'">
+        <strong>Ingresos: {{ totalTransacciones.ingresos }} | Gastos: {{ totalTransacciones.gastos }}</strong>
+      </p>
+    </div>
   </div>
 </template>
 
-<script>
-import axios from "axios";
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import Dropdown from 'primevue/dropdown';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
-export default {
-  data() {
-    return {
-      presupuestos: [],
-      transacciones: [],
-      userId: 1, // Cambiar por el ID del usuario autenticado dinámicamente
-      filtroTipoDatos: "transacciones", // 'transacciones' o 'presupuestos'
-      filtroTipo: "",
-      filtroMonto: "",
-    };
-  },
-  mounted() {
-    this.fetchPresupuestos();
-    this.fetchTransacciones();
-  },
-  methods: {
-    async fetchPresupuestos() {
-      const response = await axios.get("/api/presupuestos");
-      this.presupuestos = response.data.presupuestos;
-    },
-    async fetchTransacciones() {
-      const response = await axios.get("/api/transacciones");
-      this.transacciones = response.data;
-    },
-    aplicarFiltros() {
-      // Los filtros se aplican dinámicamente en la propiedad computada
-    },
-  },
-  computed: {
-    totalMontoPresupuesto() {
-      const presupuestosUsuario = this.presupuestos.filter(
-        (p) => p.user_id === this.userId
-      );
-      return presupuestosUsuario.reduce(
-        (total, presupuesto) => total + parseFloat(presupuesto.monto),
-        0
-      );
-    },
-    totalTransacciones() {
-      const transaccionesUsuario = this.transacciones.filter(
-        (t) => t.user_id === this.userId
-      );
-      const totalIngresos = transaccionesUsuario
-        .filter((t) => t.tipo === "ingreso")
-        .reduce((total, t) => total + parseFloat(t.monto), 0);
-      const totalGastos = transaccionesUsuario
-        .filter((t) => t.tipo === "gasto")
-        .reduce((total, t) => total + parseFloat(t.monto), 0);
+const presupuestos = ref([]);
+const transacciones = ref([]);
+const userId = ref(1);
+const filtroTipoDatos = ref("transacciones");
+const filtroTipo = ref("");
+const filtroMonto = ref("");
 
-      return { ingresos: totalIngresos, gastos: totalGastos };
-    },
-    presupuestoRestante() {
-      return (
-        this.totalMontoPresupuesto -
-        this.totalTransacciones.gastos +
-        this.totalTransacciones.ingresos
-      );
-    },
-    datosFiltrados() {
-      if (this.filtroTipoDatos === "presupuestos") {
-        return this.presupuestos.filter((p) => p.user_id === this.userId);
-      }
-
-      let transaccionesFiltradas = this.transacciones.filter(
-        (t) => t.user_id === this.userId
-      );
-
-      if (this.filtroTipo) {
-        transaccionesFiltradas = transaccionesFiltradas.filter(
-          (t) => t.tipo === this.filtroTipo
-        );
-      }
-
-      if (this.filtroMonto === "mayor") {
-        transaccionesFiltradas.sort((a, b) => b.monto - a.monto);
-      } else if (this.filtroMonto === "menor") {
-        transaccionesFiltradas.sort((a, b) => a.monto - b.monto);
-      }
-
-      return transaccionesFiltradas;
-    },
-  },
+const fetchPresupuestos = async () => {
+  const response = await axios.get("/api/presupuestos");
+  presupuestos.value = response.data.presupuestos;
 };
+
+const fetchTransacciones = async () => {
+  const response = await axios.get("/api/transacciones");
+  transacciones.value = response.data;
+};
+
+onMounted(() => {
+  fetchPresupuestos();
+  fetchTransacciones();
+});
+
+const totalMontoPresupuesto = computed(() => {
+  return presupuestos.value
+    .filter(p => p.user_id === userId.value)
+    .reduce((total, p) => total + parseFloat(p.monto), 0);
+});
+
+const totalTransacciones = computed(() => {
+  const transaccionesUsuario = transacciones.value.filter(t => t.user_id === userId.value);
+  return {
+    ingresos: transaccionesUsuario.filter(t => t.tipo === "ingreso").reduce((total, t) => total + parseFloat(t.monto), 0),
+    gastos: transaccionesUsuario.filter(t => t.tipo === "gasto").reduce((total, t) => total + parseFloat(t.monto), 0)
+  };
+});
+
+const presupuestoRestante = computed(() => {
+  return totalMontoPresupuesto.value - totalTransacciones.value.gastos + totalTransacciones.value.ingresos;
+});
+
+const datosFiltrados = computed(() => {
+  if (filtroTipoDatos.value === "presupuestos") {
+    return presupuestos.value.filter(p => p.user_id === userId.value);
+  }
+  let transaccionesFiltradas = transacciones.value.filter(t => t.user_id === userId.value);
+  if (filtroTipo.value) {
+    transaccionesFiltradas = transaccionesFiltradas.filter(t => t.tipo === filtroTipo.value);
+  }
+  if (filtroMonto.value === "mayor") {
+    transaccionesFiltradas.sort((a, b) => b.monto - a.monto);
+  } else if (filtroMonto.value === "menor") {
+    transaccionesFiltradas.sort((a, b) => a.monto - b.monto);
+  }
+  return transaccionesFiltradas;
+});
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th,
-td {
-  padding: 8px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-th {
-  background-color: #f4f4f4;
-}
-
 .filters {
   margin-top: 20px;
   margin-bottom: 20px;
+}
+.summary {
+  margin-top: 20px;
+  font-weight: bold;
 }
 </style>

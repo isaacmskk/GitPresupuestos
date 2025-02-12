@@ -22,66 +22,60 @@
             </tbody>
         </table>
         <button @click="generarUsuarioYTransaccion">Generar Usuario y Transacción</button>
-
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from "vue";
 import axios from "axios";
 
-export default {
-    data() {
-        return {
-            transacciones: [],
-            usuarios: [],
-        };
-    },
-    methods: {
-        async fetchTransacciones() {
-            try {
-                const response = await axios.get("/api/transacciones");
-                this.transacciones = response.data;
-            } catch (error) {
-                console.error("Error al cargar transacciones:", error);
-            }
-        },
-        async generarUsuarioYTransaccion() {
-            try {
-                const response = await axios.post('/api/random-user');
-                console.log('Usuario generado:', response.data);
+const transacciones = ref([]);
+const usuarios = ref([]);
 
-                // Recargar transacciones para reflejar los cambios
-                this.fetchTransacciones();
-            } catch (error) {
-                console.error('Error al generar usuario y transacción:', error);
-            }
-        },
-        async fetchUsuarios() {
-            try {
-                const response = await axios.get("/api/usuarios");
-                this.usuarios = response.data;
-            } catch (error) {
-                console.error("Error al cargar usuarios:", error);
-            }
-        },
-        getUsuarioNombre(userId) {
-            if (!Array.isArray(this.usuarios) || this.usuarios.length === 0) {
-                return "Desconocido";
-            }
-            const usuario = this.usuarios.find((u) => u.id === userId);
-            return usuario ? usuario.nombre : "Desconocido";
-        },
-    },
-    async mounted() {
-        try {
-            const response = await fetch('/api/transacciones?include_all_users=true');
-            this.transacciones = await response.json();
-        } catch (error) {
-            console.error('Error fetching transacciones:', error);
-        }
+const fetchTransacciones = async () => {
+    try {
+        const response = await axios.get("/api/transacciones");
+        transacciones.value = response.data;
+    } catch (error) {
+        console.error("Error al cargar transacciones:", error);
     }
-
 };
+
+const generarUsuarioYTransaccion = async () => {
+    try {
+        const response = await axios.post("/api/random-user");
+        console.log("Usuario generado:", response.data);
+        fetchTransacciones();
+    } catch (error) {
+        console.error("Error al generar usuario y transacción:", error);
+    }
+};
+
+const fetchUsuarios = async () => {
+    try {
+        const response = await axios.get("/api/usuarios");
+        usuarios.value = response.data;
+    } catch (error) {
+        console.error("Error al cargar usuarios:", error);
+    }
+};
+
+const getUsuarioNombre = (userId) => {
+    if (!Array.isArray(usuarios.value) || usuarios.value.length === 0) {
+        return "Desconocido";
+    }
+    const usuario = usuarios.value.find((u) => u.id === userId);
+    return usuario ? usuario.nombre : "Desconocido";
+};
+
+onMounted(async () => {
+    try {
+        const response = await fetch("/api/transacciones?include_all_users=true");
+        transacciones.value = await response.json();
+    } catch (error) {
+        console.error("Error fetching transacciones:", error);
+    }
+});
 </script>
 
 <style scoped>

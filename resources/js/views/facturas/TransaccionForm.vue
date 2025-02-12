@@ -1,22 +1,18 @@
 <template>
   <div class="card">
     <div class="card-body">
-      <!-- Formulario de agregar transacción -->
       <h3>Agregar Transacción</h3>
       <form @submit.prevent="submitTransaccion">
-        <!-- Descripción -->
         <div class="form-group mb-2">
           <label for="descripcion">Descripción</label>
           <input type="text" id="descripcion" v-model="newTransaccion.descripcion" required />
         </div>
 
-        <!-- Monto -->
         <div class="form-group mb-2">
           <label for="monto">Monto</label>
           <input type="number" id="monto" v-model="newTransaccion.monto" required />
         </div>
 
-        <!-- Categoría -->
         <div class="form-group mb-2">
           <label for="categoria">Categoría</label>
           <select v-model="newTransaccion.categoria_id" required>
@@ -26,11 +22,9 @@
             </option>
             <option value="otros">Otros</option>
           </select>
-          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text"
-            placeholder="Escribe la categoría" />
+          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text" placeholder="Escribe la categoría" />
         </div>
 
-        <!-- Tipo (Ingreso/Gasto) -->
         <div class="form-group mb-2">
           <label for="tipo">Tipo</label>
           <select v-model="newTransaccion.tipo" required>
@@ -41,12 +35,9 @@
 
         <button type="submit">Guardar</button>
       </form>
-      
 
-      <!-- Filtros -->
       <div class="filters">
         <h3>Filtros</h3>
-        <!-- Filtro por categoría -->
         <div class="form-group">
           <label for="filterCategoria">Filtrar por Categoría:</label>
           <select v-model="filtroCategoria" @change="aplicarFiltros">
@@ -57,7 +48,6 @@
           </select>
         </div>
 
-        <!-- Filtro por tipo -->
         <div class="form-group">
           <label for="filterTipo">Filtrar por Tipo:</label>
           <select v-model="filtroTipo" @change="aplicarFiltros">
@@ -67,7 +57,6 @@
           </select>
         </div>
 
-        <!-- Filtro por monto -->
         <div class="form-group">
           <label for="filterMonto">Ordenar por Monto:</label>
           <select v-model="filtroMonto" @change="aplicarFiltros">
@@ -78,7 +67,6 @@
         </div>
       </div>
 
-      <!-- Lista de transacciones -->
       <h3>Transacciones</h3>
       <table>
         <thead>
@@ -102,123 +90,84 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      newTransaccion: {
-        descripcion: '',
-        monto: '',
-        categoria_id: '',
-        tipo: '',
-        categoria: ''
-      },
-      categorias: [],
-      transacciones: [],
-      filtroCategoria: '',
-      filtroTipo: '', // Nuevo filtro para tipo
-      filtroMonto: ''
-    };
-  },
-  computed: {
-    transaccionesFiltradas() {
-      let transaccionesFiltradas = this.transacciones;
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 
-      // Filtro por categoría
-      if (this.filtroCategoria) {
-        transaccionesFiltradas = transaccionesFiltradas.filter(
-          (t) => t.categoria?.id == this.filtroCategoria
-        );
-      }
+const newTransaccion = ref({ descripcion: '', monto: '', categoria_id: '', tipo: '', categoria: '' });
+const categorias = ref([]);
+const transacciones = ref([]);
+const filtroCategoria = ref('');
+const filtroTipo = ref('');
+const filtroMonto = ref('');
 
-      // Filtro por tipo
-      if (this.filtroTipo) {
-        transaccionesFiltradas = transaccionesFiltradas.filter(
-          (t) => t.tipo === this.filtroTipo
-        );
-      }
-
-      return transaccionesFiltradas;
-    }
-  },
-  mounted() {
-    this.fetchCategorias();
-    this.fetchTransacciones();
-    this.cargarFiltros(); // Cargar los filtros al montar el componente
-  },
-  methods: {
-    async generarUsuarioYTransaccion() {
-      try {
-        const response = await axios.post('/api/random-user');
-        console.log('Usuario generado:', response.data);
-
-        // Recargar transacciones para reflejar los cambios
-        this.fetchTransacciones();
-      } catch (error) {
-        console.error('Error al generar usuario y transacción:', error);
-      }
-    },
-    async fetchCategorias() {
-      try {
-        const response = await axios.get('/api/categorias');
-        this.categorias = response.data;
-      } catch (error) {
-        console.error('Error al cargar las categorías:', error);
-      }
-    },
-    async fetchTransacciones() {
-      try {
-        const response = await axios.get('/api/transacciones', {
-          params: {
-            monto: this.filtroMonto,
-            tipo: this.filtroTipo
-          }
-        });
-        this.transacciones = response.data;
-      } catch (error) {
-        console.error('Error al cargar las transacciones:', error);
-      }
-    },
-    async submitTransaccion() {
-      try {
-        if (this.newTransaccion.categoria_id === 'otros' && this.newTransaccion.categoria) {
-          const nuevaCategoria = { nombre: this.newTransaccion.categoria };
-          const response = await axios.post('/api/categorias', nuevaCategoria);
-          this.newTransaccion.categoria_id = response.data.id;
-        }
-
-        const transaccionAEnviar = { ...this.newTransaccion };
-        delete transaccionAEnviar.categoria;
-
-        const response = await axios.post('/api/transacciones', transaccionAEnviar);
-
-        console.log('Transacción agregada:', response.data);
-
-        this.fetchTransacciones();
-        this.$emit('close');
-      } catch (error) {
-        console.error('Error al agregar la transacción:', error);
-      }
-    },
-    aplicarFiltros() {
-      // Guardar los filtros en localStorage
-      localStorage.setItem('filtroCategoria', this.filtroCategoria);
-      localStorage.setItem('filtroTipo', this.filtroTipo);
-      localStorage.setItem('filtroMonto', this.filtroMonto);
-
-      // Recargar las transacciones con los filtros aplicados
-      this.fetchTransacciones();
-    },
-    cargarFiltros() {
-      // Cargar los filtros desde localStorage
-      this.filtroCategoria = localStorage.getItem('filtroCategoria') || '';
-      this.filtroTipo = localStorage.getItem('filtroTipo') || '';
-      this.filtroMonto = localStorage.getItem('filtroMonto') || '';
-
-      this.fetchTransacciones(); // Recargar las transacciones con los filtros guardados
-    }
+const fetchCategorias = async () => {
+  try {
+    const response = await axios.get('/api/categorias');
+    categorias.value = response.data;
+  } catch (error) {
+    console.error('Error al cargar las categorías:', error);
   }
 };
+
+const fetchTransacciones = async () => {
+  try {
+    const response = await axios.get('/api/transacciones', {
+      params: { monto: filtroMonto.value, tipo: filtroTipo.value }
+    });
+    transacciones.value = response.data;
+  } catch (error) {
+    console.error('Error al cargar las transacciones:', error);
+  }
+};
+
+const transaccionesFiltradas = computed(() => {
+  let filtradas = transacciones.value;
+  if (filtroCategoria.value) {
+    filtradas = filtradas.filter(t => t.categoria?.id == filtroCategoria.value);
+  }
+  if (filtroTipo.value) {
+    filtradas = filtradas.filter(t => t.tipo === filtroTipo.value);
+  }
+  return filtradas;
+});
+
+const submitTransaccion = async () => {
+  try {
+    if (newTransaccion.value.categoria_id === 'otros' && newTransaccion.value.categoria) {
+      const nuevaCategoria = { nombre: newTransaccion.value.categoria };
+      const response = await axios.post('/api/categorias', nuevaCategoria);
+      newTransaccion.value.categoria_id = response.data.id;
+    }
+
+    const transaccionAEnviar = { ...newTransaccion.value };
+    delete transaccionAEnviar.categoria;
+
+    await axios.post('/api/transacciones', transaccionAEnviar);
+    fetchTransacciones();
+  } catch (error) {
+    console.error('Error al agregar la transacción:', error);
+  }
+};
+
+const aplicarFiltros = () => {
+  localStorage.setItem('filtroCategoria', filtroCategoria.value);
+  localStorage.setItem('filtroTipo', filtroTipo.value);
+  localStorage.setItem('filtroMonto', filtroMonto.value);
+  fetchTransacciones();
+};
+
+const cargarFiltros = () => {
+  filtroCategoria.value = localStorage.getItem('filtroCategoria') || '';
+  filtroTipo.value = localStorage.getItem('filtroTipo') || '';
+  filtroMonto.value = localStorage.getItem('filtroMonto') || '';
+  fetchTransacciones();
+};
+
+onMounted(() => {
+  fetchCategorias();
+  cargarFiltros();
+});
 </script>
 
 <style scoped>

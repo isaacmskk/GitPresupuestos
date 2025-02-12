@@ -5,27 +5,19 @@
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            bankAccounts: [],
-            bankTransactions: []
-        };
-    },
-    methods: {
-        async generarUsuarioYTransaccion() {
-            try {
-                const response = await axios.post('/api/random-user');
-                console.log('Usuario generado:', response.data);
+<script setup>
+import { ref } from "vue";
+import axios from "axios";
 
-                // Recargar transacciones para reflejar los cambios
-                this.fetchTransacciones();
-            } catch (error) {
-                console.error('Error al generar usuario y transacción:', error);
-            }
-        }
+const bankAccounts = ref([]);
+const bankTransactions = ref([]);
+
+const generarUsuarioYTransaccion = async () => {
+    try {
+        const response = await axios.post("/api/random-user");
+        console.log("Usuario generado:", response.data);
+    } catch (error) {
+        console.error("Error al generar usuario y transacción:", error);
     }
-
 };
 </script>

@@ -32,7 +32,6 @@
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 
-// Registrar los componentes de Chart.js
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
 export default {
@@ -41,8 +40,8 @@ export default {
   },
   data() {
     return {
-      selectedMonth: "", // Mes seleccionado en el filtro
-      meses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], // Lista de meses
+      selectedMonth: "", 
+      meses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       presupuestoData: {
         labels: [],
         datasets: [
@@ -67,12 +66,12 @@ export default {
           }
         ]
       },
-      presupuestoChartInstance: null, // Instancia del gráfico de presupuestos
-      transaccionesChartInstance: null // Instancia del gráfico de transacciones
+      presupuestoChartInstance: null,
+      transaccionesChartInstance: null
     };
   },
   mounted() {
-    this.fetchDatos(); // Cargar datos cuando el componente se monte
+    this.fetchDatos(); 
   },
   methods: {
     async fetchDatos() {
@@ -80,14 +79,14 @@ export default {
         const responsePresupuestos = await axios.get('/api/presupuestos', {
           params: {
             group_by: 'mes',
-            mes: this.selectedMonth || undefined // Envía el mes solo si está seleccionado
+            mes: this.selectedMonth || undefined 
           }
         });
 
         const responseTransacciones = await axios.get('/api/transacciones', {
           params: {
             group_by: 'mes',
-            mes: this.selectedMonth || undefined // Envía el mes solo si está seleccionado
+            mes: this.selectedMonth || undefined
           }
         });
 console.log("Presupuestos:", responsePresupuestos.data);
@@ -97,20 +96,17 @@ console.log("Transacciones:", responseTransacciones.data);
         const presupuestos = responsePresupuestos.data.presupuestos;
         const transacciones = responseTransacciones.data;
 
-        // Datos de presupuestos por mes
         const labelsMes = presupuestos.map(p => `Mes ${p.mes}`);
         const presupuestoData = presupuestos.map(p => p.monto);
 
-        // Aquí nos aseguramos de que las transacciones incluyan todos los meses, incluso aquellos sin transacciones
         const transaccionesData = [];
         const transaccionesLabels = [];
         const mesesTransacciones = transacciones.map(t => t.mes);
 
-        // Llenamos con ceros los meses que no tienen transacciones
         for (let mes = 1; mes <= 12; mes++) {
           const transaccion = transacciones.find(t => t.mes === mes);
           transaccionesLabels.push(`Mes ${mes}`);
-          transaccionesData.push(transaccion ? parseFloat(transaccion.total) : 0); // Si no hay transacción, asignamos 0
+          transaccionesData.push(transaccion ? parseFloat(transaccion.total) : 0);
         }
 
         this.presupuestoData.labels = labelsMes;
@@ -129,7 +125,7 @@ console.log("Transacciones:", responseTransacciones.data);
 
     renderPresupuestoChart() {
       if (this.presupuestoChartInstance) {
-        this.presupuestoChartInstance.destroy(); // Destruye el gráfico existente
+        this.presupuestoChartInstance.destroy(); 
       }
 
       this.presupuestoChartInstance = new ChartJS(this.$refs.presupuestosChart, {
@@ -145,7 +141,7 @@ console.log("Transacciones:", responseTransacciones.data);
           },
           scales: {
             y: {
-              min: 0 // Establecer el valor mínimo en 0
+              min: 0
             }
           }
         }

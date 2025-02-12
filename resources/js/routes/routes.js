@@ -34,7 +34,7 @@ async function guest(to, from, next) {
     let isLogin = !!auth.authenticated;
 
     if (isLogin) {
-        next('/')
+        next('/facturas')
     } else {
         next()
     }
@@ -50,7 +50,7 @@ async function requireAdmin(to, from, next) {
         if (hasAdmin(user.roles)) {
             next()
         } else {
-            next('/app')
+            next('/facturas')
         }
     } else {
         next('/login')
@@ -111,17 +111,7 @@ export default [
         ]
     },
 
-    {
-        path: '/app',
-        component: AuthenticatedUserLayout,
-        // redirect: {
-        //     name: 'admin.index'
-        // },
-        name: 'app',
-        beforeEnter: requireLogin,
-        meta: { breadCrumb: 'Dashboard' }
-    },
-
+   
     //FACTURAS
 
     {
