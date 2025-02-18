@@ -2,7 +2,6 @@
   <div>
     <h2>Gráficos de Presupuestos y Transacciones por Mes</h2>
 
-    <!-- Filtro para seleccionar un mes -->
     <div>
       <label for="mes">Selecciona un mes:</label>
       <select id="mes" v-model="selectedMonth" @change="fetchDatos">
@@ -11,15 +10,12 @@
       </select>
     </div>
 
-    <!-- Contenedor para los gráficos -->
     <div class="charts-container">
-      <!-- Gráfico de Presupuestos por Mes -->
       <div class="chart">
         <h3>Gráfico de Presupuestos por Mes</h3>
         <canvas ref="presupuestosChart"></canvas>
       </div>
 
-      <!-- Gráfico de Transacciones por Mes -->
       <div class="chart">
         <h3>Gráfico de Transacciones por Mes</h3>
         <canvas ref="transaccionesChart"></canvas>
@@ -40,7 +36,7 @@ export default {
   },
   data() {
     return {
-      selectedMonth: "", 
+      selectedMonth: "",
       meses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       presupuestoData: {
         labels: [],
@@ -71,7 +67,7 @@ export default {
     };
   },
   mounted() {
-    this.fetchDatos(); 
+    this.fetchDatos();
   },
   methods: {
     async fetchDatos() {
@@ -79,7 +75,7 @@ export default {
         const responsePresupuestos = await axios.get('/api/presupuestos', {
           params: {
             group_by: 'mes',
-            mes: this.selectedMonth || undefined 
+            mes: this.selectedMonth || undefined
           }
         });
 
@@ -89,8 +85,8 @@ export default {
             mes: this.selectedMonth || undefined
           }
         });
-console.log("Presupuestos:", responsePresupuestos.data);
-console.log("Transacciones:", responseTransacciones.data);
+        console.log("Presupuestos:", responsePresupuestos.data);
+        console.log("Transacciones:", responseTransacciones.data);
 
 
         const presupuestos = responsePresupuestos.data.presupuestos;
@@ -115,7 +111,6 @@ console.log("Transacciones:", responseTransacciones.data);
         this.transaccionesData.labels = transaccionesLabels;
         this.transaccionesData.datasets[0].data = transaccionesData;
 
-        // Renderizar los gráficos
         this.renderPresupuestoChart();
         this.renderTransaccionesChart();
       } catch (error) {
@@ -125,7 +120,7 @@ console.log("Transacciones:", responseTransacciones.data);
 
     renderPresupuestoChart() {
       if (this.presupuestoChartInstance) {
-        this.presupuestoChartInstance.destroy(); 
+        this.presupuestoChartInstance.destroy();
       }
 
       this.presupuestoChartInstance = new ChartJS(this.$refs.presupuestosChart, {
@@ -150,7 +145,7 @@ console.log("Transacciones:", responseTransacciones.data);
 
     renderTransaccionesChart() {
       if (this.transaccionesChartInstance) {
-        this.transaccionesChartInstance.destroy(); // Destruye el gráfico existente
+        this.transaccionesChartInstance.destroy();
       }
 
       this.transaccionesChartInstance = new ChartJS(this.$refs.transaccionesChart, {
@@ -166,7 +161,7 @@ console.log("Transacciones:", responseTransacciones.data);
           },
           scales: {
             y: {
-              min: 0 // Establecer el valor mínimo en 0
+              min: 0
             }
           }
         }
@@ -188,7 +183,7 @@ console.log("Transacciones:", responseTransacciones.data);
           },
           scales: {
             y: {
-              min: 0 // Establecer el valor mínimo en 0
+              min: 0
             }
           }
         }
@@ -211,7 +206,7 @@ console.log("Transacciones:", responseTransacciones.data);
           },
           scales: {
             y: {
-              min: 0 // Establecer el valor mínimo en 0
+              min: 0
             }
           }
         }
@@ -222,7 +217,6 @@ console.log("Transacciones:", responseTransacciones.data);
 </script>
 
 <style scoped>
-/* Estilos para los gráficos */
 .charts-container {
   display: flex;
   justify-content: space-around;

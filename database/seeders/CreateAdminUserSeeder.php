@@ -68,5 +68,12 @@ class CreateAdminUserSeeder extends Seeder
                 'user_id' => '1'
             ]
         );
+        $categoria1 = categorias::create(
+            [
+                'id' => '3',
+                'nombre' => 'Banco',
+                'user_id' => '1'
+            ]
+        );
     }
 }

@@ -89,7 +89,7 @@ class TransaccionController extends Controller
                     'monto' => $importe,
                     'tipo' => $tipo, // Ahora diferenciamos bien ingreso/gasto
                     'fecha' => $fecha,
-                    'categoria_id' => 1, 
+                    'categoria_id' => 3, 
                     'user_id' => Auth::id(),
                 ]);
     

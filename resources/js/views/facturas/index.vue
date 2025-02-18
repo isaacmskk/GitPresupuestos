@@ -5,8 +5,6 @@
     <p>Total Presupuesto: {{ totalMontoPresupuesto }}</p>
     <p>Total Ingresos: {{ totalTransacciones.ingresos }}</p>
     <p>Total Gastos: {{ totalTransacciones.gastos }}</p>
-
-    <!-- Filtros -->
     <div class="filters">
       <h3>Filtros</h3>
       <div class="form-group">
@@ -36,7 +34,6 @@
       </div>
     </div>
 
-    <!-- Tabla -->
     <h3>{{ filtroTipoDatos === 'transacciones' ? 'Transacciones' : 'Presupuestos' }}</h3>
     <DataTable :value="datosFiltrados" responsiveLayout="scroll">
       <Column field="descripcion" header="Descripción">
@@ -62,7 +59,8 @@
     </DataTable>
 
     <div class="summary">
-      <p><strong>Total:</strong> {{ filtroTipoDatos === 'transacciones' ? totalTransacciones.ingresos + totalTransacciones.gastos : totalMontoPresupuesto }}</p>
+      <p><strong>Total:</strong> {{ filtroTipoDatos === 'transacciones' ? totalTransacciones.ingresos +
+        totalTransacciones.gastos : totalMontoPresupuesto }}</p>
       <p v-if="filtroTipoDatos === 'transacciones'">
         <strong>Ingresos: {{ totalTransacciones.ingresos }} | Gastos: {{ totalTransacciones.gastos }}</strong>
       </p>
@@ -139,6 +137,7 @@ const datosFiltrados = computed(() => {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
 .summary {
   margin-top: 20px;
   font-weight: bold;

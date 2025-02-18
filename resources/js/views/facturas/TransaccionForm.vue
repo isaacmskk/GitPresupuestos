@@ -22,7 +22,8 @@
             </option>
             <option value="otros">Otros</option>
           </select>
-          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text" placeholder="Escribe la categoría" />
+          <input v-if="newTransaccion.categoria_id === 'otros'" v-model="newTransaccion.categoria" type="text"
+            placeholder="Escribe la categoría" />
         </div>
 
         <div class="form-group mb-2">
@@ -171,7 +172,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Estilos existentes */
 table {
   width: 100%;
   border-collapse: collapse;
