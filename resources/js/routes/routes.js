@@ -136,11 +136,6 @@ export default [
                 component: () => import('../views/facturas/TransaccionForm.vue'),
             },
             {
-                path: '/facturas/banco',
-                name: 'banco.facturas',
-                component: () => import('../views/facturas/ConexionBanco.vue'),
-            },
-            {
                 path: '/facturas/graficas',
                 name: 'graficas.facturas',
                 component: () => import('../views/facturas/Graficas.vue'),

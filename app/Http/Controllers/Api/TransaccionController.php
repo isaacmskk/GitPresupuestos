@@ -148,23 +148,4 @@ class TransaccionController extends Controller
 
         return response()->json(null, 204);
     }
-
-    /**
-     * Guardar transacciones importadas desde la API de GoCardless.
-     */
-    public function saveTransactionsToDatabase($transactions)
-    {
-        foreach ($transactions as $transaction) {
-            transacciones::updateOrCreate(
-                ['transaction_id' => $transaction['id']], // Asume que existe esta columna en tu tabla
-                [
-                    'descripcion' => $transaction['description'],
-                    'monto' => $transaction['amount'],
-                    'fecha' => $transaction['created_at'],
-                    'categoria_id' => null, // Asignar una categoría predeterminada o permitir nulo
-                    'user_id' => auth()->user()->id, // Relacionarlo con el usuario actual
-                ]
-            );
-        }
-    }
 }
