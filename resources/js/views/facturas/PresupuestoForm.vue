@@ -38,7 +38,6 @@
 import axios from "axios";
 import { ref, reactive, onMounted } from "vue";
 
-const emit = defineEmits(["close"]);
 const presupuesto = reactive({ categoria_id: "", monto: "", mes: "" });
 const categorias = ref([]);
 const strError = ref("");
